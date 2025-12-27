@@ -1,6 +1,43 @@
 # hive-duck
 
-A local-development replacement for `hive -e` and `hive -f` backed by DuckDB.
+**hive-duck** is a Hive-compatible command-line tool that lets you run `hive -e` and `hive -f` style SQL locally using DuckDB instead of Hadoop and Hive.
+
+It is designed for **fast local development and testing of Hive SQL** without standing up HDFS, YARN, or the Hive Metastore. Existing scripts can usually be run unchanged, while DuckDB provides a single-node, high-performance analytical execution engine.
+
+Typical use cases:
+- Develop and debug Hive SQL locally
+- Run CI checks for SQL pipelines without Hadoop
+- Replace local Hive-on-MapReduce or Spark SQL setups
+- Iterate quickly on Parquet-, Avro-, or CSV-based datasets
+
+hive-duck focuses on **CLI compatibility and correctness**, not distributed execution or performance parity with Spark.
+
+## Features
+
+- **Hive-compatible execution**  
+  Supports `-e` (inline SQL) and `-f` (SQL files) with behavior aligned to the Hive CLI.
+
+- **Variable substitution**  
+  Compatible with Hive-style variables: `${hivevar:...}`, `${hiveconf:...}`, and `${env:...}`.
+
+- **Hive statement handling**  
+  Common Hive statements such as `SET` and `USE` are rewritten or handled automatically for local execution.
+
+- **DuckDB-backed execution**  
+  Runs SQL using DuckDB’s in-process analytical engine for fast, single-node execution.
+
+- **Database mapping via YAML**  
+  Map Hive databases to DuckDB database files using a simple configuration file.
+
+- **Multiple output formats**  
+  Render query results as `table` (default), `csv`, `tsv`, or `json`.
+
+- **Extension support**  
+  Load DuckDB extensions (e.g. `avro`, `httpfs`, `json`) via a single flag.
+
+- **Compatibility checks**  
+  Detect unsupported Hive statements and optionally fail fast for CI use cases.
+
 
 ## Install
 
@@ -32,15 +69,6 @@ hive-duck -f query.sql --config databases.yaml
 hive-duck -e "SELECT * FROM table" --output json
 ```
 
-## Features
-
-- **Hive-compatible CLI**: `-e` and `-f` flags matching Hive behavior
-- **Variable substitution**: `${hivevar:...}`, `${hiveconf:...}`, `${env:...}`
-- **Hive statement rewrites**: `SET` and `USE` statements handled automatically
-- **Database mapping**: YAML config maps Hive databases to DuckDB files
-- **Output formats**: `table` (default), `csv`, `tsv`, `json`
-- **Unsupported detection**: Warn or fail on unsupported Hive statements
-- **DuckDB extensions**: Load extensions via `--ext avro,httpfs,json`
 
 ## Database Mapping
 
@@ -71,9 +99,10 @@ Use with `--config databases.yaml` to enable cross-database queries.
 ## Development
 
 ```bash
-make test-all    # Run all tests
-make test-golden # Run golden output tests
-make ci          # Full CI check (format, lint, test)
+make build        # Build the binary
+make test-all     # Run unit and integration tests
+make test-golden  # Run golden SQL output tests
+make ci           # Format, lint, and test
 ```
 
 ## License

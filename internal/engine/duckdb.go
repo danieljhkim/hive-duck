@@ -3,6 +3,7 @@ package engine
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"strings"
 
 	_ "github.com/marcboeker/go-duckdb"
@@ -30,7 +31,11 @@ func (r Runner) Run(stmts []string) error {
 	if err != nil {
 		return fmt.Errorf("open duckdb: %w", err)
 	}
-	defer db.Close()
+	defer func() {
+		if err := db.Close(); err != nil {
+			log.Printf("Failed to close database: %v", err)
+		}
+	}()
 
 	// Extensions
 	for _, ext := range r.Exts {
@@ -121,7 +126,7 @@ func returnsRows(stmt string) bool {
 func ident(s string) string {
 	// DuckDB identifiers are typically simple; keep it strict.
 	for _, ch := range s {
-		if !(ch == '_' || (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9')) {
+		if ch != '_' && (ch < 'a' || ch > 'z') && (ch < 'A' || ch > 'Z') && (ch < '0' || ch > '9') {
 			// Fall back to a quoted identifier
 			return `"` + strings.ReplaceAll(s, `"`, `""`) + `"`
 		}

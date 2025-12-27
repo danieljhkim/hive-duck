@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"strings"
 	"text/tabwriter"
@@ -66,7 +67,11 @@ func printTable(rows *sql.Rows) error {
 	}
 
 	tw := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-	defer tw.Flush()
+	defer func() {
+		if err := tw.Flush(); err != nil {
+			log.Printf("Failed to flush tabwriter: %v", err)
+		}
+	}()
 
 	// Header
 	for i, c := range cols {
