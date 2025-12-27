@@ -42,7 +42,7 @@ hive-duck focuses on **CLI compatibility and correctness**, not distributed exec
 ## Install
 
 ```bash
-go install github.com/danieljhkim/hive-duck@latest
+go install github.com/danieljhkim/hive-duck/cmd/hive-duck@latest
 ```
 
 Or build from source:
