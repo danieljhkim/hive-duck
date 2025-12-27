@@ -7,6 +7,7 @@ toolchain go1.23.4
 require (
 	github.com/marcboeker/go-duckdb v1.8.3
 	github.com/spf13/cobra v1.8.1
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -26,5 +27,4 @@ require (
 	golang.org/x/sys v0.26.0 // indirect
 	golang.org/x/tools v0.26.0 // indirect
 	golang.org/x/xerrors v0.0.0-20231012003039-104605ab7028 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

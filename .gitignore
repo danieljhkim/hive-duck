@@ -35,6 +35,4 @@ Thumbs.db
 # *.duckdb
 # *.duckdb.wal
 
-go.sum
-
 data/
