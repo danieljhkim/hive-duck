@@ -1,0 +1,11 @@
+# Database mapping configuration
+# Maps Hive database names to DuckDB database file paths
+
+databases:
+  analytics: ./data/analytics.duckdb
+  warehouse: ./data/warehouse.duckdb
+  staging: ":memory:"
+
+# Default database to USE on startup (optional)
+default: analytics
+
