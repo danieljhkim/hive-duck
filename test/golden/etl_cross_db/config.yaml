@@ -1,0 +1,4 @@
+databases:
+  analytics: ":memory:"
+  warehouse: ":memory:"
+default: analytics

@@ -1,0 +1,5 @@
+account_id  txn_count  total_credits  total_debits
+501         2          1500           0
+502         1          0              250.5
+503         1          0              75.25
+

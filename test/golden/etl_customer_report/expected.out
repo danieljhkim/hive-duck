@@ -1,0 +1,7 @@
+name         segment     order_date                     amount  running_total  order_seq
+Alice Corp   Enterprise  2025-01-10 00:00:00 +0000 UTC  5000    5000           1
+Alice Corp   Enterprise  2025-01-15 00:00:00 +0000 UTC  3000    8000           2
+Alice Corp   Enterprise  2025-01-22 00:00:00 +0000 UTC  4500    12500          3
+Bob LLC      SMB         2025-01-12 00:00:00 +0000 UTC  1500    1500           1
+Charlie Inc  Enterprise  2025-01-08 00:00:00 +0000 UTC  8000    8000           1
+Charlie Inc  Enterprise  2025-01-20 00:00:00 +0000 UTC  2000    10000          2

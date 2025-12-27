@@ -1,4 +1,4 @@
-.PHONY: help build install format lint test clean run
+.PHONY: help build install format lint test test-unit test-golden test-all test-coverage clean run tidy check ci all
 
 # Binary name
 BINARY_NAME=hive-duck
@@ -31,16 +31,25 @@ lint: ## Run linter (requires golangci-lint)
 	@if command -v golangci-lint >/dev/null 2>&1; then \
 		golangci-lint run ./...; \
 	else \
-		echo "golangci-lint not found. Install with: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest"; \
+		echo "golangci-lint not found. Skipping lint (install with: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest)"; \
 	fi
 
-test: ## Run tests
-	@echo "Running tests..."
-	@go test -v ./...
+test: test-all ## Run all tests (alias for test-all)
+
+test-unit: ## Run unit tests (excludes golden tests)
+	@echo "Running unit tests..."
+	@go test -v ./internal/...
+
+test-golden: build ## Run golden output tests
+	@echo "Running golden tests..."
+	@cd test && go test -v -run TestGolden
+
+test-all: test-unit test-golden ## Run all tests (unit + golden)
+	@echo "All tests complete"
 
 test-coverage: ## Run tests with coverage
 	@echo "Running tests with coverage..."
-	@go test -v -coverprofile=coverage.out ./...
+	@go test -v -coverprofile=coverage.out ./internal/...
 	@go tool cover -html=coverage.out -o coverage.html
 	@echo "Coverage report generated: coverage.html"
 
@@ -48,6 +57,8 @@ clean: ## Clean build artifacts
 	@echo "Cleaning..."
 	@rm -f $(BINARY_NAME)
 	@rm -f coverage.out coverage.html
+	@rm -f test/data/*.duckdb test/data/*.duckdb.wal
+	@rm -f test/golden/*/*.duckdb test/golden/*/*.duckdb.wal
 	@go clean ./...
 	@echo "Clean complete"
 
@@ -59,7 +70,9 @@ tidy: ## Run go mod tidy
 	@go mod tidy
 	@echo "Dependencies tidied"
 
-check: format lint test ## Run format, lint, and test
+check: format lint test-unit ## Run format, lint, and unit tests
 
-all: clean format build test ## Clean, format, build, and test
+ci: format lint test-all ## Full CI check (format, lint, all tests)
+	@echo "CI checks complete"
 
+all: clean format build test-all ## Clean, format, build, and test all

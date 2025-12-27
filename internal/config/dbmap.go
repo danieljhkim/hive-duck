@@ -70,5 +70,3 @@ func (m *DatabaseMap) DatabaseNames() []string {
 	}
 	return names
 }
-
-

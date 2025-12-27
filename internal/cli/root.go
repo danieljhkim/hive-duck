@@ -21,17 +21,18 @@ func Execute() {
 
 func newRootCmd() *cobra.Command {
 	var (
-		expr         string
-		file         string
-		dbPath       string
-		configPath   string
-		extsCSV      string
-		silent       bool
-		strict       bool
-		dryRun       bool
-		outputFormat string
-		hiveconf     []string
-		hivevar      []string
+		expr              string
+		file              string
+		dbPath            string
+		configPath        string
+		extsCSV           string
+		silent            bool
+		strict            bool
+		dryRun            bool
+		failOnUnsupported bool
+		outputFormat      string
+		hiveconf          []string
+		hivevar           []string
 	)
 
 	cmd := &cobra.Command{
@@ -87,6 +88,21 @@ func newRootCmd() *cobra.Command {
 				return err
 			}
 
+			// Check for unsupported Hive statements
+			unsupported := preprocess.DetectUnsupported(stmts)
+			if len(unsupported) > 0 {
+				// Print warnings to stderr
+				for _, u := range unsupported {
+					fmt.Fprintf(os.Stderr, "WARNING: Unsupported Hive statement: %s\n", u.Keyword)
+					fmt.Fprintf(os.Stderr, "  Statement: %s\n", u.Statement)
+					fmt.Fprintf(os.Stderr, "  Reason: %s\n\n", u.Reason)
+				}
+
+				if failOnUnsupported {
+					return fmt.Errorf("found %d unsupported Hive statement(s); use --fail-on-unsupported=false to continue anyway", len(unsupported))
+				}
+			}
+
 			// Rewrite Hive statements to DuckDB equivalents
 			rewriteOpts := &preprocess.RewriteOptions{
 				DatabaseMap: dbMap,
@@ -134,6 +150,7 @@ func newRootCmd() *cobra.Command {
 	cmd.Flags().BoolVarP(&silent, "silent", "S", false, "Suppress non-result output")
 	cmd.Flags().BoolVar(&strict, "strict-vars", true, "Fail if a referenced hiveconf/hivevar/env var is missing")
 	cmd.Flags().BoolVar(&dryRun, "dry-run", false, "Print rewritten SQL without executing")
+	cmd.Flags().BoolVar(&failOnUnsupported, "fail-on-unsupported", false, "Fail if unsupported Hive statements are detected")
 	cmd.Flags().StringVarP(&outputFormat, "output", "o", "table", "Output format: table, csv, tsv, json")
 
 	cmd.Flags().StringArrayVar(&hiveconf, "hiveconf", nil, "Hive conf var k=v (repeatable)")
